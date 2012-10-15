@@ -1,42 +1,85 @@
-require(
-['app/grid'],
-function( grid )
+function Life()
 {
-    var stage = new Kinetic.Stage({
-        container: "container",
-        width: 550,
-        height: 550
-    });
+    this.timer  = null;
+    this.board  = new Board();
+    this.cells  = [];
+    this.count  = 0;
+    this.countD  = 0;
+    this.countL  = 0;
 
-    var layer = new Kinetic.Layer();
-    var cell = function(x, y) {
-        var circle = new Kinetic.Circle({
-            x: (x * 25) + 12.5,
-            y: (y * 25) + 12.5,
-            radius: 10,
-            fill: "red",
-            stroke: "black",
-            strokeWidth: 1
-        });
+    this.countDays = $('#countDays');
+    this.countDead = $('#countDead');
+    this.countLive = $('#countLive');
 
-        layer.add( circle );
+
+    /**
+     * Инициализация игры ЖИЗНЬ
+     */
+    this.init = function()
+    {
+        this.cells = this.seed( this.cells );
+        this.board.stage.add( Grid() );
     };
 
-    var drawRect = function(x, y)
+    /**
+     * Тут происходит вся жизнь клеток
+     */
+    this.live = function()
     {
-        return new Kinetic.Rect({
-            x:      x * 10,
-            y:      y * 10,
-            width:  10,
-            height: 10,
-            fill:   '#000000'
-        });
+        var cells = this.life(this.cells);
+        this.board.stage.clear();
+
+        this.board.drawCells( cells );
+        this.board.stage.add( Grid() );
+        this.board.stage.add( this.board.layer );
+
+        // @FIXME
+        this.board.layer = new Kinetic.Layer();
+
+        // @TODO Вынести
+        $(this.countDays).text(this.count);
+        $(this.countDead).text(this.countD);
+        $(this.countLive).text(this.countL);
+
+
+        this.count++;
+        this.cells = cells;
     }
 
-    function getRandomInt(min, max)
+    /**
+     * Запускает "жизнь"
+     */
+    this.start = function( life )
+    {
+        if ( this.timer ) this.stop();
+
+        var me = this;
+        this.timer = window.setInterval(function(){ me.live() }, 1000);
+    };
+
+    /**
+     * Останавливает "жизнь"
+     */
+    this.stop = function()
+    {
+        if ( this.timer !== null )
+        {
+            window.clearInterval(this.timer);
+            this.timer = null;
+        }
+    };
+
+    /**
+     * Выдаёт рандомное значение в пределах указанного диапазона
+     *
+     * @param min
+     * @param max
+     * @return {Number}
+     */
+    this.getRandomInt = function(min, max)
     {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    }   ;
 
     /**
      * Первоначальное рассеивание
@@ -44,44 +87,107 @@ function( grid )
      * @param cells
      * @return {*}
      */
-    function seed( cells )
+    this.seed = function( cells )
     {
-        for( i = 0; i <= 50; i++ )
+        cells = this.feel( cells );
+        for ( var i in cells )
         {
-            cells[i] = new Array(50);
-            for( j = 0; j <= 50; j++ )
+            for ( var j in cells[i] )
             {
-                cells[i][j] = (getRandomInt(1, 2) === 2);
+                cells[i][j] = (this.getRandomInt(1, 2) === 2);
+            }
+        }
+        return cells;
+    };
+
+    /**
+     * Создаёт пустой массив ячеек
+     *
+     * @param cells
+     * @return {*}
+     */
+    this.feel = function ( cells )
+    {
+        for( var i = 0; i < this.board.cellsX; i++ )
+        {
+            cells[i] = [];
+            for( var j = 0; j < this.board.cellsY; j++ )
+            {
+                cells[i][j] = null;
             }
         }
         return cells;
     }
 
-    function point(i)
+    /**
+     * Возвращает корректные координаты точки
+     *
+     * @param i
+     * @return {*}
+     */
+    this.point = function( x )
     {
-        if ( i == -1 ) i = 50 + i;
-        if ( i == 50 ) i = 50 - i;
+        i = parseInt(x);
+
+        if ( i < 0 && i > -4 )
+        {
+            i = this.board.cellsX + i;
+        }
+        else if ( i > ( this.board.cellsX - 1 ) && i < ( this.board.cellsX + 2 ) )
+        {
+            i = (i + 1) - this.board.cellsX;
+        }
+        else if ( i >= 0 && i < this.board.cellsX )
+        {
+        }
+        else
+        {
+            // @TODO Такого не может быть, удалить
+            i = 0;
+            console.log('life.point', i);
+        }
+
+        // @TODO удалить
+        if (i < 0 || i > 49)
+        {
+            console.log(x, i);
+        }
 
         return i;
-    }
-    function parentCount(cells, i, j )
-    {
-        i = point(i);
-        j = point(j);
+    };
 
+    /**
+     * Возвращает количество соседей вокруг текущей клетки
+     *
+     * @param cells
+     * @param i
+     * @param j
+     * @return {Number}
+     */
+    this.neighbourCount = function(cells, i, j )
+    {
         var cnt = 0;
 
-        for( ii = i - 1; ii <= 3; ii++ )
-        {
-            for( jj = j - 1; jj <= 3; jj++ )
-            {
-                iii = point(ii);
-                jjj = point(jj);
+        x = this.point(i);
+        y = this.point(j);
 
-                if (iii == i && jjj == j)
+        for( var ii = -1; ii < 2; ii++ )
+        {
+            for( var jj = -1; jj < 2; jj++ )
+            {
+                var iii = this.point( x + ii );
+                var jjj = this.point( y + jj );
+
+                if (iii == x && jjj == x)
                 {}
                 else
                 {
+                    // @TODO Удалить
+                    if ( cells[iii][jjj] == undefined )
+                    {
+                        console.log('life.neighbourCount undefined', iii, jjj);
+                    }
+
                     if (cells[iii][jjj] == true)
                     {
                         cnt++;
@@ -91,7 +197,7 @@ function( grid )
         }
 
         return cnt;
-    }
+    };
 
     /**
      *  - на пустом поле, рядом с которым ровно 3 живые клетки, зарождается новая клетка;
@@ -103,59 +209,44 @@ function( grid )
      * @param cells
      * @return {*}
      */
-    function life( cells )
+    this.life = function( cells )
     {
-        for( i = 0; i <= 50; i++ )
+        for( var i in cells )
         {
-            for( j = 0; j <= 50; j++ )
+            // @FIXME
+            this.countD = 0;
+            this.countL = 0;
+
+            for( var j in cells[i] )
             {
-                var pcnt = parentCount( cells, i, j );
+                var nCnt = this.neighbourCount( cells, i, j );
+
+                // @TODO Удалить
+                if ( cells[i][j] == undefined ) {
+                    console.log('life.life undefined',cells);
+                    return;
+                }
+
+                // @FIXME
+                this.countD += 9 - nCnt;
+                this.countL += nCnt;
 
                 // живая
                 if ( cells[i][j] == true )
                 {
-                    cells[i][j] = ( pcnt == 2 || pcnt == 3 ) ? true : false;
+                    cells[i][j] = ( nCnt == 2 || nCnt == 3 ) ? true : false;
                 }
                 // пустое поле
                 else
                 {
-                    cells[i][j] = (pcnt == 3);
+                    cells[i][j] = (nCnt == 3);
                 }
             }
         }
 
         return cells;
-    }
-
-    function drawCells( cells )
-    {
-        for(i = 0; i < 50; i++) {
-            for(j = 0; j < 50; j++) {
-                if ( cells[i][j] == true )
-                {
-                    layer.add( drawRect(i, j) );
-                }
-            }
-        }
-    }
-
-    var cells   = new Array(50);
-
-    cells = seed( cells );
-
-//    drawCells( cells );
-//    stage.add( grid.layer );
-//    stage.add(layer);
+    };
+};
 
 
-    // Зацикливаем
-    window.setInterval(function() {
-        cells = life(cells);
-//        stage.clear();
 
-        drawCells( cells );
-        stage.add( grid.layer );
-        stage.add( layer );
-//        stage.draw();
-    }, 1000);
-});
