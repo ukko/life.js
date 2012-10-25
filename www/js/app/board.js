@@ -28,7 +28,13 @@ function Board()
      * Основной слой с "живностью"
      * @type {Kinetic.Layer}
      */
-    this.layer = new Kinetic.Layer();
+    this.layer  = new Kinetic.Layer();
+
+    /**
+     * Объект для рисования сетки
+     * @type {Grid}
+     */
+    this.grid = new Grid();
 
     /**
      * Основная сцена
@@ -63,6 +69,8 @@ function Board()
      */
     this.drawCells = function( cells )
     {
+        this.layer.removeChildren();
+
         for ( var i in cells )
         {
             for ( var j in cells[i] )
@@ -70,13 +78,14 @@ function Board()
                 // @TODO Удалить
                 if (cells[i][j]== undefined)
                 {
-                    console.log('board.drawCells', i, j, cells);
+                    console.warn('board.drawCells', i, j, cells);
                     return;
                 }
 
                 if ( cells[i][j] == true )
                 {
-                    this.layer.add( this.drawRect(i, j) );
+                    var rect = this.drawRect(i, j);
+                    this.layer.add( rect );
                 }
             }
         }

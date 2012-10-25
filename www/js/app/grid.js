@@ -1,30 +1,36 @@
 function Grid()
 {
-    var layer = new Kinetic.Layer();
+    this.layer  = new Kinetic.Layer();
 
-    for ( i = 0; i <= 50; i ++ )
+    this.draw   = function()
     {
-        var s = i * 10;
+        this.layer.removeChildren();
 
-        var hLine = new Kinetic.Line({
-            points:     [0, s, 500, s],
-            stroke:     "gray",
-            strokeWidth: 0.5,
-            lineCap:    "round",
-            lineJoin:   "round"
-        });
+        for ( i = 0; i <= 50; i ++ )
+        {
+            var s = i * 10;
 
-        layer.add( hLine );
+            var hLine = new Kinetic.Line({
+                points:     [0, s, 500, s],
+                stroke:     "gray",
+                strokeWidth: 0.5,
+                lineCap:    "round",
+                lineJoin:   "round"
+            });
 
-        var vLine = new Kinetic.Line({
-            points:     [s, 0, s, 500],
-            stroke:     "gray",
-            strokeWidth: 0.5,
-            lineCap:    "round",
-            lineJoin:   "round"
-        });
+            this.layer.add( hLine );
 
-        layer.add( vLine );
+            var vLine = new Kinetic.Line({
+                points:     [s, 0, s, 500],
+                stroke:     "gray",
+                strokeWidth: 0.5,
+                lineCap:    "round",
+                lineJoin:   "round"
+            });
+
+            this.layer.add( vLine );
+        }
+
+        return this.layer;
     }
-    return layer;
 };

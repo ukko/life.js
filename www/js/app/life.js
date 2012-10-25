@@ -18,7 +18,7 @@ function Life()
     this.init = function()
     {
         this.cells = this.seed( this.cells );
-        this.board.stage.add( Grid() );
+        this.board.stage.add( this.board.grid.draw() );
     };
 
     /**
@@ -27,14 +27,13 @@ function Life()
     this.live = function()
     {
         var cells = this.life(this.cells);
-        this.board.stage.clear();
+        this.board.stage.removeChildren();
 
         this.board.drawCells( cells );
-        this.board.stage.add( Grid() );
+        this.board.stage.add( this.board.grid.draw() );
         this.board.stage.add( this.board.layer );
 
-        // @FIXME
-        this.board.layer = new Kinetic.Layer();
+        this.board.layer.removeChildren();
 
         // @TODO Вынести
         $(this.countDays).text(this.count);
@@ -44,6 +43,8 @@ function Life()
 
         this.count++;
         this.cells = cells;
+
+        cells = null;
     }
 
     /**
@@ -79,7 +80,7 @@ function Life()
     this.getRandomInt = function(min, max)
     {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-    }   ;
+    }
 
     /**
      * Первоначальное рассеивание
@@ -144,13 +145,13 @@ function Life()
         {
             // @TODO Такого не может быть, удалить
             i = 0;
-            console.log('life.point', i);
+            console.warn('life.point', i);
         }
 
         // @TODO удалить
         if (i < 0 || i > 49)
         {
-            console.log(x, i);
+            console.warn(x, i);
         }
 
         return i;
@@ -185,7 +186,7 @@ function Life()
                     // @TODO Удалить
                     if ( cells[iii][jjj] == undefined )
                     {
-                        console.log('life.neighbourCount undefined', iii, jjj);
+                        console.warn('life.neighbourCount undefined', iii, jjj);
                     }
 
                     if (cells[iii][jjj] == true)
@@ -223,7 +224,7 @@ function Life()
 
                 // @TODO Удалить
                 if ( cells[i][j] == undefined ) {
-                    console.log('life.life undefined',cells);
+                    console.warn('life.life undefined', cells);
                     return;
                 }
 
@@ -243,6 +244,8 @@ function Life()
                 }
             }
         }
+
+        nCnt = null;
 
         return cells;
     };
