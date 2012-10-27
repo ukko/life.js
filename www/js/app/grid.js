@@ -1,7 +1,19 @@
+/**
+ * Сетка
+ * @constructor
+ */
 function Grid()
 {
+    /**
+     * Слой с сеткой
+     * @type {Kinetic.Layer}
+     */
     this.layer  = new Kinetic.Layer();
 
+    /**
+     * Рисует сетку
+     * @return {Kinetic.Layer}
+     */
     this.draw   = function()
     {
         this.layer.removeChildren();

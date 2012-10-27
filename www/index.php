@@ -10,14 +10,30 @@
     <div class="container">
         <h2>Игра "Жизнь"</h2>
         <div class="span3">
-            <h5>ТТХ</h5>
+            <h5>Информация</h5>
             <ul>
                 <li>Прожито дней: <b id="countDays">0</b> </li>
                 <li>Кол-во живых: <b id="countLive">0</b> </li>
                 <li>Кол-во пустых: <b id="countDead">0</b> </li>
             </ul>
-            <h5>Запуск</h5>
-            <input type="button" value="Старт" class="btn btn-primary">
+
+            <h5>Управление</h5>
+
+            <h6>Скорость</h6>
+            <label class="radio">
+                <input type="radio" name="speed" value="slow"> Медлено
+            </label>
+            <label class="radio">
+                <input type="radio" name="speed" value="normal" checked="checked"> Нормально
+            </label>
+            <label class="radio">
+                <input type="radio" name="speed" value="fast"> Быстро
+            </label>
+
+            <input type="button" value="Перезапуск ♺" class="btn btn-inverse" id="refresh">
+
+            <input type="button" value="Старт ▶" class="btn btn-primary" id="start">
+
         </div>
         <div class="span4" id="container"></div>
         <div class="span4"></div>

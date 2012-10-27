@@ -1,3 +1,7 @@
+/**
+ * Поле с игрой
+ * @constructor
+ */
 function Board()
 {
     /**

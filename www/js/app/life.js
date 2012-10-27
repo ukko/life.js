@@ -1,15 +1,58 @@
+/**
+ * Жизнь
+ * @constructor
+ */
 function Life()
 {
-    this.timer  = null;
-    this.board  = new Board();
-    this.cells  = [];
-    this.count  = 0;
-    this.countD  = 0;
-    this.countL  = 0;
+    /**
+     * ID таймера
+     * @type {null}
+     */
+    this.timer      = null;
 
-    this.countDays = $('#countDays');
-    this.countDead = $('#countDead');
-    this.countLive = $('#countLive');
+    /**
+     * Игровое поле
+     * @type {Board}
+     */
+    this.board      = new Board();
+
+    /**
+     * Массив с ячейками
+     * @type {Array}
+     */
+    this.cells      = [];
+
+    /**
+     * Количество прожитых "дней"
+     * @type {Number}
+     */
+    this.count      = 0;
+
+    /**
+     * Количество мёртвых ячеек
+     * @type {Number}
+     */
+    this.countD     = 0;
+
+    /**
+     * Количество живых ячеек
+     * @type {Number}
+     */
+    this.countL     = 0;
+
+    /**
+     * Скорость "дня"
+     * @type {Number}
+     */
+    this.speed      = 500;
+
+    /**
+     * @FIXME
+     * @type {*|jQuery|HTMLElement}
+     */
+    this.countDays  = $('#countDays');
+    this.countDead  = $('#countDead');
+    this.countLive  = $('#countLive');
 
 
     /**
@@ -48,6 +91,19 @@ function Life()
     }
 
     /**
+     * Сбрасывает данные сессии и перезапускает игру
+     */
+    this.refresh = function()
+    {
+        this.stop();
+        this.count      = 0;
+        this.countD     = 0;
+        this.countL     = 0;
+        this.cells = this.seed( [] );
+        this.start();
+    };
+
+    /**
      * Запускает "жизнь"
      */
     this.start = function( life )
@@ -55,7 +111,7 @@ function Life()
         if ( this.timer ) this.stop();
 
         var me = this;
-        this.timer = window.setInterval(function(){ me.live() }, 1000);
+        this.timer = window.setInterval(function(){ me.live() }, this.speed);
     };
 
     /**
@@ -95,7 +151,7 @@ function Life()
         {
             for ( var j in cells[i] )
             {
-                cells[i][j] = (this.getRandomInt(1, 2) === 2);
+                cells[i][j] = (this.getRandomInt(1, 10) === 1);
             }
         }
         return cells;
@@ -123,7 +179,7 @@ function Life()
     /**
      * Возвращает корректные координаты точки
      *
-     * @param i
+     * @param x
      * @return {*}
      */
     this.point = function( x )
