@@ -63,7 +63,7 @@ function Board()
             y:      y * 10,
             width:  10,
             height: 10,
-            fill:   '#000000'
+            fill:   '#876D78'
         });
     }
 
