@@ -4,6 +4,8 @@
  */
 function Grid()
 {
+    "use strict";
+
     /**
      * Слой с сеткой
      * @type {Kinetic.Layer}
@@ -16,13 +18,15 @@ function Grid()
      */
     this.draw   = function()
     {
+        var i, s, hLine, vLine;
+
         this.layer.removeChildren();
 
-        for ( i = 0; i <= 50; i ++ )
+        for (i = 0; i <= 50; i += 1 )
         {
-            var s = i * 10;
+            s = i * 10;
 
-            var hLine = new Kinetic.Line({
+            hLine = new Kinetic.Line({
                 points:     [0, s, 500, s],
                 stroke:     "gray",
                 strokeWidth: 0.5,
@@ -32,7 +36,7 @@ function Grid()
 
             this.layer.add( hLine );
 
-            var vLine = new Kinetic.Line({
+            vLine = new Kinetic.Line({
                 points:     [s, 0, s, 500],
                 stroke:     "gray",
                 strokeWidth: 0.5,

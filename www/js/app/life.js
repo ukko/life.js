@@ -4,6 +4,8 @@
  */
 function Life()
 {
+    "use strict";
+
     /**
      * ID таймера
      * @type {null}
@@ -50,41 +52,40 @@ function Life()
      * @FIXME
      * @type {*|jQuery|HTMLElement}
      */
-    this.countDays  = $('#countDays');
-    this.countDead  = $('#countDead');
-    this.countLive  = $('#countLive');
+    this.countDays  = undefined;
+    this.countDead  = undefined;
+    this.countLive  = undefined;
 
 
     /**
      * Инициализация игры ЖИЗНЬ
      */
-    this.init = function()
+    this.init = function ()
     {
-        this.cells = this.seed( this.cells );
-        this.board.stage.add( this.board.grid.draw() );
+        this.cells = this.seed(this.cells);
+        this.board.stage.add(this.board.grid.draw());
     };
 
     /**
      * Тут происходит вся жизнь клеток
      */
-    this.live = function()
+    this.live = function ()
     {
         var cells = this.life(this.cells);
         this.board.stage.removeChildren();
 
-        this.board.drawCells( cells );
-        this.board.stage.add( this.board.grid.draw() );
-        this.board.stage.add( this.board.layer );
+        this.board.drawCells(cells);
+        this.board.stage.add(this.board.grid.draw());
+        this.board.stage.add(this.board.layer);
 
         this.board.layer.removeChildren();
 
         // @TODO Вынести
-        $(this.countDays).text(this.count);
-        $(this.countDead).text(this.countD);
-        $(this.countLive).text(this.countL);
+        this.countDays.innerHTML = this.count;
+        this.countDead.innerHTML = this.countD;
+        this.countLive.innerHTML = this.countL;
 
-
-        this.count++;
+        this.count = this.count + 1;
         this.cells = cells;
 
         cells = null;
@@ -93,33 +94,36 @@ function Life()
     /**
      * Сбрасывает данные сессии и перезапускает игру
      */
-    this.refresh = function()
+    this.refresh = function ()
     {
         this.stop();
-        this.count      = 0;
-        this.countD     = 0;
-        this.countL     = 0;
-        this.cells = this.seed( [] );
+        this.count  = 0;
+        this.countD = 0;
+        this.countL = 0;
+        this.cells  = this.seed([]);
         this.start();
     };
 
     /**
      * Запускает "жизнь"
      */
-    this.start = function( life )
+    this.start = function ()
     {
-        if ( this.timer ) this.stop();
-
         var me = this;
-        this.timer = window.setInterval(function(){ me.live() }, this.speed);
+
+        if (this.timer) {
+            this.stop();
+        }
+
+        this.timer = window.setInterval(function () { me.live() }, this.speed);
     };
 
     /**
      * Останавливает "жизнь"
      */
-    this.stop = function()
+    this.stop = function ()
     {
-        if ( this.timer !== null )
+        if (this.timer !== null)
         {
             window.clearInterval(this.timer);
             this.timer = null;
@@ -133,10 +137,10 @@ function Life()
      * @param max
      * @return {Number}
      */
-    this.getRandomInt = function(min, max)
+    this.getRandomInt = function (min, max)
     {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    };
 
     /**
      * Первоначальное рассеивание
@@ -144,12 +148,13 @@ function Life()
      * @param cells
      * @return {*}
      */
-    this.seed = function( cells )
+    this.seed = function (cells)
     {
-        cells = this.feel( cells );
-        for ( var i in cells )
+        cells = this.feel(cells);
+
+        for (var i in cells)
         {
-            for ( var j in cells[i] )
+            for (var j in cells[i])
             {
                 cells[i][j] = (this.getRandomInt(1, 10) === 1);
             }
@@ -163,12 +168,13 @@ function Life()
      * @param cells
      * @return {*}
      */
-    this.feel = function ( cells )
+    this.feel = function (cells)
     {
-        for( var i = 0; i < this.board.cellsX; i++ )
+        var i, j;
+        for (i = 0; i < this.board.cellsX; i = i + 1)
         {
             cells[i] = [];
-            for( var j = 0; j < this.board.cellsY; j++ )
+            for (j = 0; j < this.board.cellsY; j = j + 1)
             {
                 cells[i][j] = null;
             }
@@ -182,26 +188,17 @@ function Life()
      * @param x
      * @return {*}
      */
-    this.point = function( x )
+    this.point = function (x)
     {
-        i = parseInt(x);
+        var i = parseInt(x, 10);
 
-        if ( i < 0 && i > -4 )
+        if (i < 0 && i > -4)
         {
             i = this.board.cellsX + i;
         }
-        else if ( i > ( this.board.cellsX - 1 ) && i < ( this.board.cellsX + 2 ) )
+        else if (i > (this.board.cellsX - 1) && i < (this.board.cellsX + 2))
         {
             i = (i + 1) - this.board.cellsX;
-        }
-        else if ( i >= 0 && i < this.board.cellsX )
-        {
-        }
-        else
-        {
-            // @TODO Такого не может быть, удалить
-            i = 0;
-            console.warn('life.point', i);
         }
 
         // @TODO удалить
@@ -221,30 +218,22 @@ function Life()
      * @param j
      * @return {Number}
      */
-    this.neighbourCount = function(cells, i, j )
+    this.neighbourCount = function (cells, i, j)
     {
-        var cnt = 0;
+        var cnt = 0,
+            x = this.point(i),
+            y = this.point(j),
+            ii, jj;
 
-        x = this.point(i);
-        y = this.point(j);
-
-        for( var ii = -1; ii < 2; ii++ )
+        for (ii = -1; ii < 2; ii = ii + 1)
         {
-            for( var jj = -1; jj < 2; jj++ )
+            for (jj = -1; jj < 2; jj = jj + 1)
             {
-                var iii = this.point( x + ii );
-                var jjj = this.point( y + jj );
+                var iii = this.point(x + ii);
+                var jjj = this.point(y + jj);
 
-                if (iii == x && jjj == x)
-                {}
-                else
+                if (iii !== x || jjj !== x)
                 {
-                    // @TODO Удалить
-                    if ( cells[iii][jjj] == undefined )
-                    {
-                        console.warn('life.neighbourCount undefined', iii, jjj);
-                    }
-
                     if (cells[iii][jjj] == true)
                     {
                         cnt++;
