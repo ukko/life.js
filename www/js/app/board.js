@@ -4,6 +4,8 @@
  */
 function Board()
 {
+    "use strict";
+
     /**
      * Ширина поля в пикселях
      * @type {Number}

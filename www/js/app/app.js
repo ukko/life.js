@@ -1,52 +1,68 @@
-$(document).ready(function()
-{
+window.onload = function () {
+    "use strict";
+
     /**
      * Класс игры - жизнь
      * @type {Life}
      */
-    var life = new Life();
+    var life        = new Life(),
+        startBtn    = document.getElementById('start'),
+        refreshBtn  = document.getElementById('refresh'),
+        radioBtns   = document.getElementsByName('speed'),
+        radioOnClick,
+        radioLength = radioBtns.length;
 
     life.init();
+    life.countDays = document.getElementById('countDays');
+    life.countDead = document.getElementById('countDead');
+    life.countLive = document.getElementById('countLive');
 
-    $('#start:button').click(function(){
-        if ($(this).hasClass('btn-primary')) {
-            $(this).removeClass('btn-primary').addClass('btn-danger').val('Стоп ◼');
-            life.start( life );
-        }
-        else {
-            $(this).removeClass('btn-danger').addClass('btn-primary').val('Старт ▶');
+    startBtn.onclick = function () {
+
+        var classes = (startBtn.getAttribute('class') || '').split(' '),
+            i = classes.indexOf('btn-primary');
+
+        if (i >= 0) {
+            classes.push('btn-danger');
+            this.value = 'Стоп ◼';
+            life.start(life);
+        } else {
+            i = classes.indexOf('btn-danger');
+            classes.push('btn-primary');
+            this.value = 'Старт ▶';
             life.stop();
         }
-    });
 
-    $('#refresh:button').click(function(){
-        life.refresh();
-    });
-
-    $(':radio').click( function(){
-        switch ( $(this).val() )
-        {
-            case 'slow' :
-                life.speed = 1000;
-                break;
-
-            case 'normal':
-                life.speed = 500;
-                break;
-
-            case 'fast':
-                life.speed = 100;
-                break;
-
-            default :
-                life.speed = 500;
+        if (i >= 0) {
+            delete classes[i];
         }
 
-        if ( life.timer !== null )
+        this.setAttribute('class', classes.join(' '));
+    };
+
+    refreshBtn.onclick = function () {
+        life.refresh();
+    };
+
+    radioOnClick = function () {
+        var speed = {
+                slow:   1000,
+                normal: 500,
+                fast:   100
+            },
+            val     = this.value;
+
+        life.speed = speed[val] ? speed[val]:speed['normal'];
+
+        if (life.timer !== null)
         {
             life.stop();
             life.start();
         }
-    });
-});
+    };
+
+    while (radioLength = radioLength - 1) {
+        radioBtns[radioLength].onclick = radioOnClick;
+    }
+};
 
